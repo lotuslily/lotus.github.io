@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="学习笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="蓝柚青柠" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="Kafka集群搭建1. kafka基本结构作为一个消息系统，其基本结构中至少要有产生消息的组件（消息生产者，Producer）以及消费消息的组件（消费者，Consumer)。生产者负责生产消息，将消息写入Kafka集群;消费者从Kafka 集群中拉取消息。">
+<meta name="keywords" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka笔记">
+<meta property="og:url" content="http://yoursite.com/2018/05/26/test/index.html">
+<meta property="og:site_name" content="蓝柚青柠">
+<meta property="og:description" content="Kafka集群搭建1. kafka基本结构作为一个消息系统，其基本结构中至少要有产生消息的组件（消息生产者，Producer）以及消费消息的组件（消费者，Consumer)。生产者负责生产消息，将消息写入Kafka集群;消费者从Kafka 集群中拉取消息。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-26T11:06:09.919Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kafka笔记">
+<meta name="twitter:description" content="Kafka集群搭建1. kafka基本结构作为一个消息系统，其基本结构中至少要有产生消息的组件（消息生产者，Producer）以及消费消息的组件（消费者，Consumer)。生产者负责生产消息，将消息写入Kafka集群;消费者从Kafka 集群中拉取消息。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/26/test/"/>
+
+
+
+
+
+  <title>Kafka笔记 | 蓝柚青柠</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband">
+<a href="https://github.com/lotuslily" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#70B7FD; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    </div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝柚青柠</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">努力学会写好每一行代码。嗯。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-首页">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-关于">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-标签">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-分类">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-归档">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/26/test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lotus">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝柚青柠">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Kafka笔记</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-26T10:20:28+08:00">
+                2018-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,848
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Kafka集群搭建"><a href="#Kafka集群搭建" class="headerlink" title="Kafka集群搭建"></a>Kafka集群搭建</h1><h2 id="1-kafka基本结构"><a href="#1-kafka基本结构" class="headerlink" title="1. kafka基本结构"></a>1. kafka基本结构</h2><p>作为一个消息系统，其基本结构中至少要有产生消息的组件（消息生产者，Producer）以及消费消息的组件（消费者，Consumer)。生产者负责生产消息，将消息写入Kafka集群;消费者从Kafka 集群中拉取消息。</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">    生产者1--&gt;kafka集群;</span><br><span class="line">    生产者2--&gt;kafka集群;</span><br><span class="line">    生产者3--&gt;kafka集群;</span><br><span class="line">    kafka集群--&gt;消费者1;</span><br><span class="line">    kafka集群--&gt;消费者2;</span><br><span class="line">    kafka集群--&gt;消费者3;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kafka基本概念"><a href="#2-kafka基本概念" class="headerlink" title="2. kafka基本概念"></a>2. kafka基本概念</h2><p>kafka是一种高吞吐量的分布式发布订阅消息系统，它可以处理消费者规模的网站中的所有动作流数据。</p>
+<ol>
+<li><strong>主题</strong><br>Kafka 将一组消息抽象归纳为一个主题（Topic），也就是说，一个主题就是对消息的一个分类。生产者将消息发送到特定主题，消费者订阅主题或主题的某些分区进行消费。</li>
+<li><strong>消息</strong><br>消息是Kafka 通信的基本单位，由一个固定长度的消息头和一个可变长度的消息体构成。</li>
+<li><strong>分区和副本</strong><br>kafka在创建topic时，可以设置所拥有的分区和副本数，也可以在Kafka启动时所加载的配置文件中配置。每个分区在物理上对应为一个文件夹，每个分区又有一至多个副本（Replica），分区的副本分布在集群的不同代理上，以提高可用性。从存储角度上分析，分区的每个副本在逻辑上抽象为一个日志（Log）对象，即分区的副本与日志对象是一一对应的。分区使得Kafka在井发处理上变得更加容易，分区也是Kafka保证消息被顺序消费以及对消息进行负载均衡的基础。</li>
+<li><strong>偏移量</strong><br>任何发布到分区的消息会被直接追加到日志文件（分区目录下以＂.log”为文件名后缀的数据文件〉的尾部，而每条消息在日志文件中的位置都会对应一个按序递增的偏移量。Kafka 几乎不允许对消息进行随机读写，因此Kafka并没有提供额外索引机制到存储偏移量也就是说并不会给偏移量再提供索引。消费者可以通过控制消息偏移量来对消息进行消费，如消费者可以指定消费的起始偏移量。为了保证消息被顺序消费，消费者己消费的消息对应的偏移量也需要保存。</li>
+<li><strong>日志段</strong><br>一个日志又被划分为多个日志段（LogSegment），日志段是Kafka日志对象分片的最小单位。与日志对象一样，日志段也是一个逻辑概念，一个日志段对应磁盘上一个具体日志文件和两个索引文件。日志文件是以“.log”为文件名后缀的数据文件，用于保存消息实际数据。两个索引文件分别以“.index”和“.timeindex”作为文件名后缀，分别表示消息偏移量索引文件和消息时间戳索引文件。</li>
+<li><strong>代理</strong><br>在Kafka 基本体系结构提到了Kafka集群。Kafka集群就是由一个或多个Kafka实例构成，我们将每一个Kafka实例称为代理（Broker），通常也称代理为Kafka 服务器( KafkaServer ）</li>
+<li><strong>生产者</strong><br>生产者（ Producer ）负责将消息发送给代理，也就是向Kafka 代理发送消息的客户端。</li>
+<li><strong>消费者和消费组</strong><br>消费者（ C omsumer ）以拉取（ pull ）方式拉取数据，它是消费的客户端。在Kafka 中每一个消费者都属于一个特定消费组（ConsumerGroup），我们可以为每个消费者指定一个消费组，以groupld 代表消费组名称，通过group.id配置设置。如果不指定消费组，则该消费者属于默认消费组test-consumer-group。同时，每个消费者也有一个全局唯一的id，通过配置项client.id指定，如果客户端没有指定消费者的id,Kafka会自动为该消费者生成一个全局唯一的id 。同一个主题的一条消息只能被同一个消费组下某一个消费者消费，但不同消费组的消费者可同时消费该消息。消费组是Kafka用来实现对一个主题消息进行广播和单播的手段，实现消息广播只需指定各消费者均属于不同的消费组，消息单播则只需让各消费者属于同一个消费组。</li>
+</ol>
+<h2 id="3-kafka集群搭建"><a href="#3-kafka集群搭建" class="headerlink" title="3. kafka集群搭建"></a>3. kafka集群搭建</h2><blockquote>
+<p>搭建步骤默认建立在服务器已配置好java环境以及<strong>搭建好的外部zookeeper集群</strong>。</p>
+</blockquote>
+<p><em>注意：kafka自带zookeeper，应避免其与外部zookeeper发生冲突。</em></p>
+<p>假设搭建好的zookeeper集群环境如下：<br>三个节点名分别为spamaster spaslave1 spaslave2</p>
+<ul>
+<li>192.168.2.161：2181  </li>
+<li>192.168.2.162：2181</li>
+<li>192.168.2.198：2181</li>
+</ul>
+<p>我们同样在161,162,198三个服务器上搭建kafka集群  安装路径/home/hadoop/bigdata/kafka</p>
+<ol>
+<li><p>首先在spamaster节点上准备好安装包 我们选用的kafka版本为  kafka_2.10-0.10.2.1.tgz<br>官网下载地址<a href="http://kafka.apache.org/downloads.html" target="_blank" rel="noopener">http://kafka.apache.org/downloads.html</a></p>
+</li>
+<li><p>将安装包解压到需要存放的目录下，例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar zxvf kafka_2.10-0.10.2.1.tgz -C /home/hadoop/bigdata</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv kafka_2.10-0.10.2.1 kafka</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol start="3">
+<li>修改配置文件<br>主要修改的配置文件包括：config目录下的<strong>server.properties</strong>配置文件，这是kafka配置文件<blockquote>
+<p>config下的zookeeper.properties文件，是用来配置kafka自带的zookeeper的，此处我们不需要修改</p>
+</blockquote>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">#spamaster节点</span><br><span class="line">#server.properties</span><br><span class="line"></span><br><span class="line">#kafka服务器id</span><br><span class="line">broker.id=0</span><br><span class="line">#开启删除，保证topic被删除时不是仅仅标记删除</span><br><span class="line">delete.topic.enable=true</span><br><span class="line">listeners=PLAINTEXT://spamaster:9092</span><br><span class="line">advertised.listeners=PLAINTEXT://spamaster:9092</span><br><span class="line">num.network.threads=3</span><br><span class="line">num.io.threads=8</span><br><span class="line">socket.send.buffer.bytes=102400</span><br><span class="line">socket.receive.buffer.bytes=102400</span><br><span class="line">socket.request.max.bytes=104857600</span><br><span class="line">log.dirs=/home/hadoop/bigdata/kafka/logs</span><br><span class="line">num.partitions=1</span><br><span class="line">num.recovery.threads.per.data.dir=1</span><br><span class="line">log.retention.hours=168</span><br><span class="line">log.segment.bytes=1073741824</span><br><span class="line">log.retention.check.interval.ms=300000</span><br><span class="line">zookeeper.connect=spamaster:2181,spaslave1:2181,spaslave2:2181</span><br><span class="line">zookeeper.connection.timeout.ms=6000</span><br></pre></td></tr></table></figure>
+<p>将配置好的kafka文件夹复制到另外两个spaslave节点相同路径下 server.properties里的如下字段要根据节点修改</p>
+<p><strong>broker</strong>.<strong>id</strong></p>
+<ul>
+<li>spamaster：0  </li>
+<li>spaslave1：1 </li>
+<li>spaslave2: 2</li>
+</ul>
+<p><strong>listeners</strong>  </p>
+<ul>
+<li>PLAINTEXT://spamaster:9092</li>
+<li>PLAINTEXT://spaslave1:9092</li>
+<li>PLAINTEXT://spaslave2:9092</li>
+</ul>
+<p><strong>advertised.listeners</strong></p>
+<ul>
+<li>advertised.listeners=PLAINTEXT://spamaster:9092</li>
+<li>advertised.listeners=PLAINTEXT://spaslave1:9092</li>
+<li>advertised.listeners=PLAINTEXT://spaslave2:9092</li>
+</ul>
+<h2 id="4-集群启动和测试"><a href="#4-集群启动和测试" class="headerlink" title="4. 集群启动和测试"></a>4. 集群启动和测试</h2><p>首先保证zookeeper集群正常启动<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-server-start.sh -daemon config/server.properties</span><br></pre></td></tr></table></figure></p>
+<p>三个节点均要启动</p>
+<p>创建topic test，test的 分区、副本为2<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --create --zookeeper spamaster:2181,spaslave1:2181,spaslave2:2181 --replication-factor 2 --partitions 2 --topic test</span><br></pre></td></tr></table></figure></p>
+<p>查看topic列表<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --list --zookeeperspamaster:2181,spaslave1:2181,spaslave2:2181</span><br></pre></td></tr></table></figure></p>
+<p>查看topic状态<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --describe --zookeeper spamaster:2181,spaslave1:2181,spaslave2:2181 --topic test</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>可以通过不同节点生产，消费消息来验证集群是否搭建成功</p>
+</blockquote>
+<p>生产消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-producer.sh --broker-list spamaster:9092 --topic test</span><br></pre></td></tr></table></figure></p>
+<p>消费消息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-console-consumer.sh --zookeeper spamaster:2181,spaslave1:2181,spaslave2:2181 --topic test --from-beginning</span><br></pre></td></tr></table></figure></p>
+<p>删除topic<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-topics.sh --delete --zookeeper spamaster:2181,spaslave1:2181,spaslave2:2181 --topic test</span><br></pre></td></tr></table></figure></p>
+<p>关闭kafka<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/kafka-server-stop.sh</span><br></pre></td></tr></table></figure></p>
+<h1 id="Flume搭建"><a href="#Flume搭建" class="headerlink" title="Flume搭建"></a>Flume搭建</h1><p>Flume是Cloudera提供的一个高可用、高可靠、分布式的海量日志采集、聚合和传输的系统。Flume支持在日志系统中定制各类数据发送方用于收集数据，同时Flume提供对数据的简单处理，并将数据处理结果写入各种数据接收方的能力</p>
+<h2 id="1-安装包下载和解压"><a href="#1-安装包下载和解压" class="headerlink" title="1.安装包下载和解压"></a>1.安装包下载和解压</h2><p>下载<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://mirrors.tuna.tsinghua.edu.cn/apache/flume/1.8.0/apache-flume-1.8.0-bin.tar.gz</span><br></pre></td></tr></table></figure></p>
+<p>解压<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf apache-flume-1.8.0-bin.tar.gz</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv apache-flume-1.8.0-bin /home/hadoop/bigdata/flume</span><br></pre></td></tr></table></figure>
+<h2 id="2-环境变量配置"><a href="#2-环境变量配置" class="headerlink" title="2.环境变量配置"></a>2.环境变量配置</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>在文件中加入</p>
+<blockquote>
+<p>export FLUME_HOME=/home/hadoop/bigdata/flume</p>
+</blockquote>
+<blockquote>
+<p>export PATH=$PATH:$FLUME_HOME/bin </p>
+</blockquote>
+<p>保存退出,执行source命令，使环境变量生效<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.bashrc</span><br></pre></td></tr></table></figure></p>
+<h2 id="3-flume节点配置"><a href="#3-flume节点配置" class="headerlink" title="3.flume节点配置"></a>3.flume节点配置</h2><h5 id="1-对conf路径下的flume-env-sh文件进行修改，加入java环境变量"><a href="#1-对conf路径下的flume-env-sh文件进行修改，加入java环境变量" class="headerlink" title="1.对conf路径下的flume-env.sh文件进行修改，加入java环境变量"></a>1.对conf路径下的flume-env.sh文件进行修改，加入java环境变量</h5><blockquote>
+<p>export JAVA_HOME=/home/hadoop/bigdata/java</p>
+</blockquote>
+<h5 id="2-针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件"><a href="#2-针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件" class="headerlink" title="2.针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件"></a>2.针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件</h5><h6 id="1-在conf目录下新建flume-hdfs-conf配置文件，指定flume收集的日志写入到hdfs中"><a href="#1-在conf目录下新建flume-hdfs-conf配置文件，指定flume收集的日志写入到hdfs中" class="headerlink" title="1.在conf目录下新建flume-hdfs.conf配置文件，指定flume收集的日志写入到hdfs中"></a>1.在conf目录下新建flume-hdfs.conf配置文件，指定flume收集的日志写入到hdfs中</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"> 1 #agent1 name</span><br><span class="line"> 2 agent1.sources=source1</span><br><span class="line"> 3 agent1.sinks=sink1</span><br><span class="line"> 4 agent1.channels=channel1</span><br><span class="line"> 5 #Spooling Directory</span><br><span class="line"> 6 #set source1 spoolDir指定使用spool源路径，即flume监听信息源的路径</span><br><span class="line"> 7 agent1.sources.source1.type=spooldir</span><br><span class="line"> 8 agent1.sources.source1.spoolDir=/home/hadoop/bigdata/flume/flumetest/dir/logdfs</span><br><span class="line"> 9 agent1.sources.source1.channels=channel1</span><br><span class="line">10 agent1.sources.source1.fileHeader = false</span><br><span class="line">11 agent1.sources.source1.interceptors = i1</span><br><span class="line">12 agent1.sources.source1.interceptors.i1.type = timestamp</span><br><span class="line">13 #set sink1 日志文件收集到hdfs /flume/logdfs 路径下</span><br><span class="line">14 agent1.sinks.sink1.type=hdfs</span><br><span class="line">15 agent1.sinks.sink1.hdfs.path=hdfs://spamaster:9000/flume/logdfs</span><br><span class="line">16 agent1.sinks.sink1.hdfs.fileType=DataStream</span><br><span class="line">17 agent1.sinks.sink1.hdfs.writeFormat=TEXT</span><br><span class="line">18 agent1.sinks.sink1.hdfs.rollInterval=1</span><br><span class="line">19 agent1.sinks.sink1.channel=channel1</span><br><span class="line">20 agent1.sinks.sink1.hdfs.filePrefix=%Y-%m-%d</span><br><span class="line">21 agent1.sinks.sink1.hdfs.fileSuffix=.txt</span><br><span class="line">22 #set channel1</span><br><span class="line">23 agent1.channels.channel1.type=file</span><br><span class="line">24 agent1.channels.channel1.checkpointDir=/home/hadoop/bigdata/flume/flumetest/dir/logdfstmp/point</span><br><span class="line">25 agent1.channels.channel1.dataDirs=/home/hadoop/bigdata/flume/flumetest/dir/logdfstmp</span><br></pre></td></tr></table></figure>
+<p>在flume路径下启动flume，指定以flume-hdfs.conf配置文件启动，命令中的agent1表示配置文件中的Agent的Name</p>
+<blockquote>
+<p>bin/flume-ng agent –conf conf –conf-file conf/flume-hdfs.conf –name agent1 -Dflume.root.logger=INFO,console</p>
+</blockquote>
+<p>在/home/hadoop/bigdata/flume/flumetest/dir/logdfs路径下导入一个文件test.log，该log文件会被flume检测到，在文件名后添加.COMPLETED后缀并上传到hdfs</p>
+<h6 id="2-在conf目录下新建flume-kafka-conf配置文件，指定flume收集的日志写入到kafka中"><a href="#2-在conf目录下新建flume-kafka-conf配置文件，指定flume收集的日志写入到kafka中" class="headerlink" title="2.在conf目录下新建flume-kafka.conf配置文件，指定flume收集的日志写入到kafka中"></a>2.在conf目录下新建flume-kafka.conf配置文件，指定flume收集的日志写入到kafka中</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> 1 # 指定Agent的组件名称  </span><br><span class="line"> 2 agent1.sources = source1</span><br><span class="line"> 3 agent1.sinks = sink1</span><br><span class="line"> 4 agent1.channels = channel1</span><br><span class="line"> 5 </span><br><span class="line"> 6 # 指定Flume source(要监听的路径)  </span><br><span class="line"> 7 agent1.sources.source1.type = spooldir</span><br><span class="line"> 8 agent1.sources.source1.spoolDir = /home/hadoop/bigdata/flume/flumetest/dir/logkafka</span><br><span class="line"> 9 agent1.sources.source1.ignorePattern = ^(.)*\\.tmp$</span><br><span class="line">10 </span><br><span class="line">11 # 指定Flume sink  </span><br><span class="line">12 # agent1.sinks.sink1.type = logger  </span><br><span class="line">13 agent1.sinks.sink1.type = org.apache.flume.sink.kafka.KafkaSink</span><br><span class="line">14 agent1.sinks.sink1.topic = callstatus</span><br><span class="line">15 agent1.sinks.sink1.brokerList = 192.168.2.198:9092,192.168.2.161:9092</span><br><span class="line">16 agent1.sinks.sink1.requiredAcks = 1</span><br><span class="line">17 agent1.sinks.sink1.batchSize = 16384</span><br><span class="line">18 </span><br><span class="line">19 # 指定Flume channel  </span><br><span class="line">20 agent1.channels.channel1.type=file</span><br><span class="line">21 agent1.channels.channel1.checkpointDir=/home/hadoop/bigdata/flume/flumetest/dir/logkafkatmp/point</span><br><span class="line">22 agent1.channels.channel1.dataDirs=/home/hadoop/bigdata/flume/flumetest/dir/logkafkatmp</span><br><span class="line">23 </span><br><span class="line">24 # 绑定source和sink到channel上  </span><br><span class="line">25 agent1.sources.source1.channels = channel1</span><br><span class="line">26 agent1.sinks.sink1.channel = channel1</span><br></pre></td></tr></table></figure>
+<p> 启动flume</p>
+<blockquote>
+<p>bin/flume-ng agent –conf conf –conf-file conf/flume-kafka.conf –name agent1 -Dflume.root.logger=INFO,console</p>
+</blockquote>
+<p>启动kafka消费者</p>
+<blockquote>
+<p>bin/kafka-console-consumer.sh –zookeeper spamaster:2181,spaslave1:2181,spaslave2:2181 –topic callstatus –from-beginning</p>
+</blockquote>
+<p>在/home/hadoop/bigdata/flume/flumetest/dir/logkafka路径下导入文件，立即被kafka所消费，通过消费者程序消费flume配置中设置的topic可以看到，文件内容已经传到kafka中了</p>
+<blockquote>
+<p>Spool用于监测配置的目录下新增的文件，并将文件中的数据读取出来。需要注意两点：拷贝到spool目录下的文件不可以再打开编辑(这样收集到的日志内容为空，编辑的内容无效）、spool目录下不可包含相应的子目录。</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/学习笔记/" rel="tag"><i class="fa fa-tag"></i> 学习笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=Get this uid from http://www.jiathis.com/" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="lotus" />
+            
+              <p class="site-author-name" itemprop="name">lotus</p>
+              <p class="site-description motion-element" itemprop="description">云在青天水在瓶，清池皓月照禅心。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.weibo.com/u/3618009762" target="_blank" title="Weibo">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:1641100871@qq.com" target="_blank" title="Email">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>Email</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/lotuslily" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.google.com.hk" title="Google" target="_blank">Google</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=28815250&auto=1&height=66"></iframe>
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka集群搭建"><span class="nav-number">1.</span> <span class="nav-text">Kafka集群搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-kafka基本结构"><span class="nav-number">1.1.</span> <span class="nav-text">1. kafka基本结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-kafka基本概念"><span class="nav-number">1.2.</span> <span class="nav-text">2. kafka基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-kafka集群搭建"><span class="nav-number">1.3.</span> <span class="nav-text">3. kafka集群搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-集群启动和测试"><span class="nav-number">1.4.</span> <span class="nav-text">4. 集群启动和测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Flume搭建"><span class="nav-number">2.</span> <span class="nav-text">Flume搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-安装包下载和解压"><span class="nav-number">2.1.</span> <span class="nav-text">1.安装包下载和解压</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-环境变量配置"><span class="nav-number">2.2.</span> <span class="nav-text">2.环境变量配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-flume节点配置"><span class="nav-number">2.3.</span> <span class="nav-text">3.flume节点配置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-对conf路径下的flume-env-sh文件进行修改，加入java环境变量"><span class="nav-number">2.3.0.0.1.</span> <span class="nav-text">1.对conf路径下的flume-env.sh文件进行修改，加入java环境变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件"><span class="nav-number">2.3.0.0.2.</span> <span class="nav-text">2.针对不同的sink对象，即日志收集到何处，设置不同的接收器配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-在conf目录下新建flume-hdfs-conf配置文件，指定flume收集的日志写入到hdfs中"><span class="nav-number">2.3.0.0.2.1.</span> <span class="nav-text">1.在conf目录下新建flume-hdfs.conf配置文件，指定flume收集的日志写入到hdfs中</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-在conf目录下新建flume-kafka-conf配置文件，指定flume收集的日志写入到kafka中"><span class="nav-number">2.3.0.0.2.2.</span> <span class="nav-text">2.在conf目录下新建flume-kafka.conf配置文件，指定flume收集的日志写入到kafka中</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lotus</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+
+  <span class="post-meta-divider">|</span>
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共2.8k字</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
